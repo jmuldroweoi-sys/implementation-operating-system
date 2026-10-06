@@ -1,87 +1,148 @@
 # implementation-operating-system
 
-A vendor-neutral operating system for running software implementation projects: one lifecycle, deterministic rules, shared data contracts, and practical tools that one implementation professional can run directly and a larger team can scale.
+A vendor-neutral operating system for running software implementation projects: one ten-phase lifecycle, human-recorded gates, deterministic rules, shared data contracts, and a validator. One implementation professional can run it directly from plain files, and a larger team can scale it without changing the model.
 
-> **Build status: pre-release.** Only the shared standard (`standard/`, version 1.0.0) exists so far. The operating system core described below is not built yet. Nothing here is a finished product, and nothing here reports a historical result.
+> **Status: version 0.1.0, pre-release, not tagged.** The core is built and validated against synthetic data. It has not been deployed on a real project, and nothing here reports a historical or measured result.
 
-## What this repository will become
+## Purpose
 
-The first of six connected repositories for implementation work. When the core is built (repository version 0.1), it will provide:
+Give implementation work one reliable operating record: which phase each project is in, what must be true to move on, what is late or blocked, which risks and issues matter, how ready a project is to launch, and who decided what. R1 defines that record and the rules around it so that every project is run the same way and every number can be recomputed.
 
-- one reference lifecycle of ten phases (Initiate, Discover, Design, Build, Validate, Enable, Launch, Stabilize, Transition, Review) with gate checklists
-- schemas for projects, phases, milestones, tasks, gate assessments, requests, handoffs, risks, issues, and readiness scorecards
-- deterministic SLA, escalation, risk, and readiness rules in configuration
-- configuration profiles for different organization stages
-- synthetic data and a working validation script
+## Who this is for
 
-The companion repositories cover a spreadsheet tracker, capacity and organization design, an enablement program, a team management toolkit, and a governed AI assistance framework. Each one pins the shared standard in this repository.
+- **An implementation or onboarding professional** who runs projects hands-on and wants one lifecycle, one checklist per gate, and one record per project instead of scattered notes.
+- **A small implementation team** that needs shared phases, owner roles, and escalation rules without buying or building a large platform.
+- **A growing delivery organization** that needs the same records to feed capacity planning, enablement, quality review, and reporting later.
 
-## Current build status
+## What problem it solves
 
-| Part | Status |
-|---|---|
-| `standard/` shared standard 1.0.0 | Built and validated |
-| Lifecycle, gates, operational schemas, rules, profiles | Not started (next build) |
-| Synthetic data, scenario packs | Not started |
-| Practical workflow guide (`docs/practical-workflow.md`) | Not started; arrives with the core |
-| Public release | Not authorized. See `verification/release-gate.md` |
+Implementation work often lives in a mix of trackers, status notes, and memory. Phases mean different things to different people, gate decisions are not written down, blocked requests wait until someone notices, readiness is a feeling, and every report is rebuilt by hand. R1 replaces that with:
 
-## What `standard/` provides
+- one lifecycle and one gate checklist per phase, with the outcome always recorded by a named person;
+- a request state machine with timers that escalate stalled work to a named role;
+- deterministic risk, readiness, and lead-time rules that give the same answer every time;
+- an event log that other tools can read without re-keying anything.
 
-The shared contract every repository uses: one glossary, one ID registry (`TYPE-NNNNNN`), field naming conventions, four mandatory labels, a severity scale, six readiness categories, lifecycle terms, shared status vocabularies, four organization stages, one event catalog, and four shared schemas (event, approval record, recommendation, metric definition). Start with [standard/README.md](standard/README.md).
+## Practical IC use
 
-## What is intentionally not built yet
+The full walkthrough is in [docs/practical-workflow.md](docs/practical-workflow.md). It follows Synthetic Project A from intake to review in 17 steps and lists what a solo implementer does each week: update tasks, work the request queue, review risks and issues, check milestones, run the validator, prepare the next gate, and send status. Every step names the record that changes, the rule that applies, the event emitted, and the human decision.
 
-The lifecycle files, gate criteria, operational schemas, SLA and risk rules, readiness weights, profiles, scenario packs, and synthetic project data. They are built next, on top of this standard, so they cannot drift from it.
+## Architecture
 
-## Why a hands-on implementer needs a shared standard
+```text
+standard/        shared vocabulary for six repositories (1.0.0)
+lifecycle/       ten phases and nine gates (core)
+schemas/         ten operational record schemas (core)
+tools/           r1_rules.py (every rule as a function) and validate.py
+config/          request states, SLA, risk, lead-time, and readiness parameters
+profiles/        organization stage, complexity, service, and segment profiles
+data/synthetic/  three synthetic projects and their events
+```
 
-If you run implementations yourself, you already juggle a tracker, status notes, training records, and maybe an AI assistant. When each of them uses its own words and IDs, the same project, task, risk, readiness score, training record, or AI recommendation ends up meaning something different depending on which tool is open. The shared standard fixes that at the source: one name and one ID for each thing, one list of statuses, and one record of what happened. That is what lets a solo implementer keep a clean tracker today and lets the same records feed capacity planning, training, and reporting later without rework.
+Core, configuration, and optional scenario packs (none installed in 0.1) are separate layers. A named human records every gate outcome, handoff acceptance, and approval; rules only calculate, time, flag, and notify; AI has no authority over any record. See [docs/architecture.md](docs/architecture.md) and [docs/authority-boundaries.md](docs/authority-boundaries.md).
 
-## Genericity and public safety
+## Ten-phase lifecycle
 
-- Industry-neutral and vendor-neutral. No real company, customer, vendor, product, or employer appears anywhere.
-- No fictional company or product premise either. Examples use neutral scenario labels (Scenario A to E) and role labels with IDs, never human-style names.
-- All data is synthetic data. Every design number is labeled as a proposed design value, not a measured result.
+1. Initiate
+2. Discover
+3. Design
+4. Build
+5. Validate
+6. Enable
+7. Launch
+8. Stabilize
+9. Transition
+10. Review
+
+Projects move forward one phase at a time after a gate outcome of `pass` or `pass_with_conditions`. The only backward move is Validate to Build for rework. Review has no gate and closes the project. Details: [docs/lifecycle-overview.md](docs/lifecycle-overview.md), [`lifecycle/lifecycle.yaml`](lifecycle/lifecycle.yaml), [`lifecycle/gates.yaml`](lifecycle/gates.yaml).
+
+## Deterministic rules
+
+| Rule | Configuration | Behavior |
+|---|---|---|
+| Request transitions | `config/request-state-machine.yaml` | 9 statuses, 16 legal transitions; anything else is rejected |
+| SLA timers and escalation | `config/sla-rules.yaml` | `due_at` = time entered status + target duration; a stalled request emits `request.escalated` to a named role |
+| Risk score | `config/risk-rules.yaml` | likelihood x impact, classified into four bands with a severity |
+| Lead-time flags | `config/lead-time-rules.yaml` | flags planned work due too close to a milestone or launch, or starting before its predecessors |
+| Readiness | `config/readiness-weights.yaml` | weighted score across six categories plus an incomplete-required-evidence flag |
+| Gate checks | `lifecycle/gates.yaml` | yes or no checks that inform, never decide, the gate outcome |
+
+All rules are implemented once in [`tools/r1_rules.py`](tools/r1_rules.py). The validator and the tests call the same functions. No rule uses AI.
+
+## Data model
+
+Ten JSON Schemas in [`schemas/`](schemas/): project (`PRJ`), phase instance (`PHS`), milestone (`MLS`), task (`TSK`), gate assessment (`GAT`), request (`REQ`), handoff (`HND`), risk (`RSK`), issue (`ISS`), and readiness scorecard (`RDS`, with entries `RDE`). IDs, field names, phase keys, statuses, severities, and the event contract come from [`standard/`](standard/README.md). Each schema that has a CSV export lists its exact columns (`x-csv-columns`), which the R3 workbook will reuse unchanged.
+
+R1 owns the implementation project, not the customer master. A project carries `customer_reference` (a free-form pointer to the customer record in your own system, never an R1 ID) and `customer_label` (a display label). R1 holds no customer legal, account, billing, contract, HR, or personal data.
+
+## Readiness
+
+The readiness scorecard uses the six canonical categories: people, process, technology, data, training, and support. For each category a person counts the criteria met and confirms whether the required evidence exists. The calculation is fixed:
+
+- `achieved_rate` = criteria met / criteria total
+- `category_score` = weight x `achieved_rate`
+- `overall_score` = 100 x sum(weight x `achieved_rate`) / sum(weight)
+- `incomplete_required_evidence_flag` = true when any category lacks its required evidence
+
+**The score informs the readiness review. It does not make the launch decision.** A named human records the launch gate outcome. A high score with incomplete required evidence is still incomplete: Synthetic Project C scores 91.25 with the flag set, and its launch gate is deliberately unrecorded.
+
+## Scaling
+
+The same model serves startup, early-scale, structured-growth, and mature organizations. Smaller organizations use fewer required fields, lighter gates, and fewer active rules; larger ones add evidence, formal approvers, and stronger audit. The phases, schemas, rules, and human decision points never change. See [docs/scaling-model.md](docs/scaling-model.md).
+
+## Configuration
+
+- [`config/`](config/) holds the rule parameters. Every duration, weight, scale bound, and threshold is labeled as a proposed design value, not a measured result, and as a user-configurable parameter. None is a benchmark.
+- [`profiles/`](profiles/) holds the profile schema and four illustrative example profiles. A profile may require extra fields, add gate evidence, make waivable evidence optional, change gate formality, and override listed parameters. It may not redefine the lifecycle, change ID meaning, remove a human approval, or grant AI authority. The validator enforces each limit.
+
+## Synthetic example
+
+[`data/synthetic/`](data/synthetic/README.md) holds synthetic data for three projects: A (startup, simple), B (early scale, with a high risk and a blocked request that is escalated by rule), and C (structured growth, approaching launch, with a rework loop and a launch-review scorecard). Exact counts: 3 projects, 15 phases, 12 milestones, 30 tasks, 8 requests, 6 risks, 5 issues, 18 readiness rows, and 38 events. All references resolve with zero orphans.
+
+## Cross-repo integration
+
+R1 is the authority that five companion repositories build on: R2 reads task hours, phases, request workload, and launch signals for capacity planning; R3 implements R1 as a workbook; R4 supplies training evidence; R5 uses R1 records as context only; R6 drafts recommendations that change nothing until a named human approves them. See [docs/portfolio-integration.md](docs/portfolio-integration.md).
+
+## What is not included yet
+
+Planned for later versions, and deliberately absent from 0.1: one file per phase, schemas for decisions, configuration items, environments, promotion records, and improvement items, environment promotion and builder permissions, an integration workstream guide, a detailed continuous-improvement workflow, templates, and the optional large-scale go-live pack (rehearsal plan, cutover runbook, command center, super-user roster, hypercare exit rules). The companion repositories are not built yet.
+
+## Limitations
+
+- The data is synthetic. Nothing here has been used on a real project, and no value is a measured result.
+- SLA timers count elapsed calendar time only; business-hour calendars are not modeled in 0.1.
+- Gate assessments and handoffs have schemas and events but no CSV file in the synthetic data set.
+- Improvement signals are recorded as the catalog event only until the improvement-item schema exists.
+- Event payload fields are named by the catalog and checked for consistency with the records; they are not typed by a separate payload schema.
+- The validator proves that the records are internally consistent. It cannot prove that a project is ready; that remains a human decision.
+
+## Public-safety statement
+
+- Industry-neutral, vendor-neutral, and platform-agnostic. No real company, customer, vendor, product, or employer appears anywhere, and the validator checks for common vendor names.
+- Examples use neutral labels only (Scenario A to C, Synthetic Project A, Synthetic Organization A, Person A, role IDs). People appear only as `PER-` IDs.
+- All data is labeled synthetic data, every example is labeled illustrative example, and every design number is labeled as a proposed design value, not a measured result.
 - Everything is freshly written. No source document, training material, or screenshot from any organization is reproduced.
 
-## Deterministic authority
+## AI assistance
 
-Every calculation, score, and status in this system comes from documented rules and formulas that give the same answer every time. Records owned by one repository are never recalculated or redefined by another.
-
-## AI boundary
-
-AI may draft, summarize, explain, organize, flag, and recommend. It never calculates an authoritative number, changes an authoritative status, decides a gate or a go or no-go, passes or fails a learner, rates or ranks a person, or makes a hiring, staffing, customer, or contract decision. AI proposals are recommendation records with status proposed, approved, or rejected, and only a named human approves them through an approval record. The approval schema allows only a human approver.
+AI assisted with drafting and structuring this repository: Claude (Anthropic) helped draft text, schemas, configuration, synthetic data, rules, and tests under the author's direction. The author defined the architecture and the rules, and a human reviewed and approved all content before it was committed. Every rule and number was also checked by the automated validator and test suite. AI produced no data about real people or organizations, and no AI is used by any rule in this repository.
 
 ## Versioning
 
 | Version | Value |
 |---|---|
 | Shared standard | 1.0.0 (`standard/version-policy.md`) |
+| R1 core record schemas | 0.1.0 (`schema_version` on every record) |
+| Readiness calculation | 1.0.0 (`calculation_version` in `config/readiness-weights.yaml`) |
 | Repository | 0.1.0, pre-release, not tagged (`CHANGELOG.md`) |
 
-The two versions are tracked separately. Downstream repositories pin the standard version.
-
-## Validate
-
-Python 3.12:
+Validate with Python 3.12:
 
 ```bash
 python -m pip install -r requirements.txt
 python tools/validate.py
 python -m unittest discover -s tests -v
 ```
-
-## Limitations
-
-- Only the shared standard exists. There is no lifecycle, gate, schema for operational records, rule, profile, or synthetic dataset yet, so nothing can be run against a project.
-- Payload fields in the event catalog are named but not yet typed; each producing repository types them when it is built.
-- Prefixes owned by the other five repositories are registered now so IDs never collide, but their records are defined only when those repositories are built.
-- Nothing here has been used on a real project, and nothing claims a measured result.
-
-## AI assistance
-
-This repository was drafted with Claude (Anthropic) under the author's direction and review. The author defined the architecture, the rules, and the approval of every change; AI assistance was used for drafting text, schemas, and tests, which were checked by the automated validator and by human review. AI produced no data about real people or organizations.
 
 ## License
 

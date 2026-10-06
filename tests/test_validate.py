@@ -24,7 +24,10 @@ sys.path.insert(0, str(ROOT / "tools"))
 
 import validate  # noqa: E402
 
-COPY = ("standard", "tools", "CHANGELOG.md", "README.md", "CONTRIBUTING.md")
+COPY = (
+    "standard", "tools", "docs", "lifecycle", "schemas", "config", "profiles", "data", "verification",
+    "CHANGELOG.md", "README.md", "CONTRIBUTING.md",
+)
 
 
 class Sandbox:
@@ -82,7 +85,7 @@ class ValidatorTest(unittest.TestCase):
         res = validate.validate(ROOT)
         failed = [(c, n) for c, ok, n in res.rows if not ok]
         self.assertEqual(failed, [])
-        self.assertEqual(len(res.rows), 24)
+        self.assertEqual(len(res.rows), 41)
 
     def test_sandbox_copy_passes(self) -> None:
         self.assertTrue(all(self.box.run().values()))
@@ -176,6 +179,14 @@ class ValidatorTest(unittest.TestCase):
     def test_rejects_label_near_variant_in_documents(self) -> None:
         self.box.replace("standard/glossary.md", "## Rules", "Timers here are a proposed design value only.\n\n## Rules")
         self.assertFails("V15", self.box.run())
+
+    def test_rejects_hyphenated_label_variant(self) -> None:
+        self.box.replace("standard/glossary.md", "## Rules", "These rows are " + "synthetic" + "-data.\n\n## Rules")
+        self.assertFails("V15", self.box.run())
+
+    def test_file_name_is_not_a_label_variant(self) -> None:
+        self.box.replace("standard/glossary.md", "## Rules", "See verification/" + "synthetic" + "-data-check.md.\n\n## Rules")
+        self.assertTrue(self.box.run()["V15"])
 
     def test_rejects_invalid_organization_stage(self) -> None:
         def change(doc):
