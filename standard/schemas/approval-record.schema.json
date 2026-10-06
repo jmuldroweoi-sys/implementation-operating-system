@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:implementation-operating-system:standard:1.0.0:approval-record",
+  "title": "Approval record",
+  "description": "The single shared approval record (standard 1.0.0) for every repository. It records a named human's decision on a subject, such as a recommendation, gate, go or no-go decision, credential grant, or appeal. The approver is always a human person. AI is never the approver. No repository defines a second approval schema. Examples are illustrative examples using synthetic data.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "approval_id",
+    "subject_type",
+    "subject_id",
+    "decision",
+    "approver_id",
+    "approver_type",
+    "decided_at",
+    "reason"
+  ],
+  "properties": {
+    "approval_id": {"type": "string", "pattern": "^APR-[0-9]{6}$"},
+    "subject_type": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "description": "Entity name of what is being approved, registered in standard/id-registry.yaml."
+    },
+    "subject_id": {"type": "string", "pattern": "^[A-Z]{3}-[0-9]{6}$"},
+    "decision": {
+      "type": "string",
+      "enum": ["approved", "rejected"],
+      "description": "The decided values of the recommendation vocabulary in standard/status-vocabularies.yaml."
+    },
+    "approver_id": {
+      "type": "string",
+      "pattern": "^PER-[0-9]{6}$",
+      "description": "The named human who decided."
+    },
+    "approver_type": {
+      "type": "string",
+      "const": "human",
+      "description": "Always human. An approval record can never name an AI agent or a system as approver."
+    },
+    "decided_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$"
+    },
+    "reason": {"type": "string", "minLength": 1},
+    "approver_role_id": {"type": "string", "pattern": "^ROL-[0-9]{6}$"},
+    "conditions": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "description": "Conditions attached to an approval, if the owning workflow allows them."
+    },
+    "source_repo": {
+      "type": "string",
+      "enum": [
+        "implementation-operating-system",
+        "implementation-capacity-and-org-design",
+        "implementation-tracker-workbook",
+        "implementation-enablement-program",
+        "implementation-team-management-toolkit",
+        "implementation-ai-agent-framework"
+      ],
+      "description": "Repository whose workflow required this approval."
+    }
+  },
+  "examples": [
+    {
+      "approval_id": "APR-000004",
+      "subject_type": "recommendation",
+      "subject_id": "REC-000007",
+      "decision": "rejected",
+      "approver_id": "PER-000003",
+      "approver_type": "human",
+      "decided_at": "2026-03-06T17:20:00Z",
+      "reason": "The draft cites a milestone date that the project record does not contain.",
+      "source_repo": "implementation-ai-agent-framework"
+    }
+  ]
+}

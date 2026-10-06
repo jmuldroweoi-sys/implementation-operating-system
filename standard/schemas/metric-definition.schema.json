@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:implementation-operating-system:standard:1.0.0:metric-definition",
+  "title": "Metric definition",
+  "description": "The single shared metric-definition record (standard 1.0.0). It describes a metric: what it means, who owns it, its grain and unit, and where its deterministic rule lives. It never holds calculated values; those use the reserved MTV prefix and are defined by the owning repository. Examples are illustrative examples.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "metric_definition_id",
+    "name",
+    "description",
+    "owning_repo",
+    "grain",
+    "unit",
+    "deterministic_rule_or_formula_reference",
+    "source_entities",
+    "version",
+    "status"
+  ],
+  "properties": {
+    "metric_definition_id": {"type": "string", "pattern": "^MTR-[0-9]{6}$"},
+    "name": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+    "description": {"type": "string", "minLength": 1},
+    "owning_repo": {
+      "type": "string",
+      "enum": [
+        "implementation-operating-system",
+        "implementation-capacity-and-org-design",
+        "implementation-tracker-workbook",
+        "implementation-enablement-program",
+        "implementation-team-management-toolkit",
+        "implementation-ai-agent-framework"
+      ]
+    },
+    "grain": {
+      "type": "string",
+      "minLength": 1,
+      "description": "What one value describes, for example one project per month."
+    },
+    "unit": {
+      "type": "string",
+      "minLength": 1,
+      "description": "For example hours, count, ratio, or rate (0 to 1)."
+    },
+    "deterministic_rule_or_formula_reference": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Where the deterministic rule or formula is defined: a repository path, optionally with a key."
+    },
+    "source_entities": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+      "description": "Entity names, registered in standard/id-registry.yaml, that the metric is computed from."
+    },
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "status": {
+      "type": "string",
+      "enum": ["draft", "in_review", "released", "deprecated"],
+      "description": "The configuration vocabulary in standard/status-vocabularies.yaml."
+    }
+  },
+  "examples": [
+    {
+      "metric_definition_id": "MTR-000001",
+      "name": "load_ratio",
+      "description": "Demand hours divided by supply hours for one role and period. Above 1 means more work than available hours.",
+      "owning_repo": "implementation-capacity-and-org-design",
+      "grain": "one role per month",
+      "unit": "ratio",
+      "deterministic_rule_or_formula_reference": "implementation-capacity-and-org-design formulas/capacity-formulas.md#load-ratio",
+      "source_entities": ["demand_record", "supply_record"],
+      "version": "1.0.0",
+      "status": "draft"
+    }
+  ]
+}
