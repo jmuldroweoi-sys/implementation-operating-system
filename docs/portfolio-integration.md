@@ -1,6 +1,6 @@
 # Portfolio integration
 
-R1 is the first of six connected repositories. This page states what each of the others takes from R1 and what each may never do with it. The authority rules are in [authority-boundaries.md](authority-boundaries.md). None of the other repositories is built yet; this page records the contract they will be built against.
+R1 is the first of six connected repositories. This page states what each of the others takes from R1 and what each may never do with it. The authority rules are in [authority-boundaries.md](authority-boundaries.md). R3 is built and implements this contract (see below). R2, R4, R5, and R6 are not built yet; this page records the contract they will be built against.
 
 ```text
                        R1 records and events (authoritative)
@@ -28,12 +28,13 @@ R2 may never recalculate R1 readiness, risk, or gate logic, or change any R1 rec
 
 ## R3 implements R1
 
-R3 (`implementation-tracker-workbook`) is the spreadsheet reference implementation of R1. It uses the same field names, IDs, statuses, and formulas:
+R3 ([`implementation-tracker-workbook`](https://github.com/jmuldroweoi-sys/implementation-tracker-workbook)) is the spreadsheet reference implementation of R1, built and verified as version 0.1.0. It uses the same field names, IDs, statuses, and formulas:
 
 - Each CSV in `data/synthetic/` maps to a tab with identical columns (the `x-csv-columns` list in each schema).
 - Risk score, readiness score, escalation due time, and lead-time flags are formulas that must return the same values as `tools/r1_rules.py`.
 - R3 owns no weights, thresholds, statuses, or transitions of its own for R1 concepts. A difference between R3 and R1 is an R3 defect.
-- Starter mode serves a solo implementer with each schema's minimum fields.
+- Starter Mode serves a solo implementer with each schema's minimum fields.
+- R3 pins an exact R1 commit and checks every copied contract file against its SHA-256, so a change here never reaches R3 silently.
 
 ## R4 provides Enable and training evidence
 

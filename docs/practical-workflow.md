@@ -4,7 +4,7 @@ How can one implementation professional use this directly in their job? By runni
 
 This page is an illustrative example built on synthetic data. It follows **Synthetic Project A** (`PRJ-000001`, customer label "Synthetic Organization A", organization stage `startup`) from intake to review. One person, Person A (`PER-000001`), holds every internal role. No real company, customer, or result is represented.
 
-Steps 1 to 5 match the records in [`data/synthetic/`](../data/synthetic/), which hold Project A as of 2026-10-05, in its Discover phase. Steps 6 to 17 continue the same project as an illustrative example beyond the data set; where they show a calculation, they use the values that Synthetic Projects B and C already hold in the data set, so every number on this page can be checked.
+Steps 1 to 5 match the records in [`data/synthetic/`](../data/synthetic/), which hold Project A as of 2026-10-05, in its Discover phase. Steps 6 to 17 continue Project A as an illustrative example beyond the data set. Project A has not reached those phases in the data, so where a later step has a rule you can check, a separate **Data-set comparison** note under the step points to Synthetic Project B or C, which already hold that situation. Those notes are comparisons only; the story stays with Project A.
 
 ## Trigger
 
@@ -78,28 +78,34 @@ Project A is here in the data set. Its pre-assessment readiness scorecard `RDS-0
 
 - **User action:** write the solution design, get the customer sponsor's approval, and record the Design gate.
 - **Record changed:** a Design phase instance; a gate assessment for `design_gate`. If a requested change needs a decision, its request goes to `awaiting_approval`.
-- **Deterministic rule:** leaving `awaiting_approval` needs an approval record by a named approver. The `request_approval_wait` timer (`RUL-000002`, 72 hours) escalates a request that waits too long. In the data set, `REQ-000003` (Project B) shows this state, with `escalation_due_at` = `status_changed_at` + 72 hours.
+- **Deterministic rule:** leaving `awaiting_approval` needs an approval record by a named approver. The `request_approval_wait` timer (`RUL-000002`, 72 hours) escalates a request that waits too long.
 - **Event emitted:** `phase.exited`, `phase.entered`, `request.status_changed`, `gate.assessed`.
-- **Human decision:** the sponsor approves the design; Person A records the gate. Project B's design gate in the data set (`GAT-000002`) shows `pass_with_conditions`, with its condition tracked as risk `RSK-000002`.
+- **Human decision:** the sponsor approves the design; Person A records the gate.
 - **Downstream consumer:** R3, R6.
+
+> **Data-set comparison (Synthetic Project B):** request `REQ-000003` waits in `awaiting_approval` with `escalation_due_at` = `status_changed_at` + 72 hours, and design gate `GAT-000002` records `pass_with_conditions`, with its condition tracked as risk `RSK-000002`.
 
 ### Step 7. Build
 
 - **User action:** configure, build integrations, and log issues as they appear.
 - **Record changed:** Build tasks move through their statuses; issues are logged with a severity from the shared scale.
-- **Deterministic rule:** if a request is `blocked` for longer than `RUL-000003` allows (48 hours, a user-configurable parameter), the rule escalates it to the delivery leadership role with severity `sev2`. In the data set, `REQ-000002` (Project B) was blocked at 2026-09-24T15:00:00Z and escalated at 2026-09-26T15:00:00Z (`EVT-000027`). Issue timers `RUL-000005` to `RUL-000008` notify by severity.
-- **Event emitted:** `task.status_changed`, `request.status_changed`, `request.escalated`, `issue.logged`, `issue.resolved`, `milestone.missed` when a date passes (Project B, `MLS-000005`).
+- **Deterministic rule:** if a request is `blocked` for longer than `RUL-000003` allows (48 hours, a user-configurable parameter), the rule escalates it to the delivery leadership role with severity `sev2`. Issue timers `RUL-000005` to `RUL-000008` notify by severity.
+- **Event emitted:** `task.status_changed`, `request.status_changed`, `request.escalated`, `issue.logged`, `issue.resolved`, `milestone.missed` when a date passes.
 - **Human decision:** the role receiving an escalation decides what to do; the rule only notifies.
 - **Downstream consumer:** R2 (request workload and blocked work), R3 (overdue and escalation flags).
+
+> **Data-set comparison (Synthetic Project B):** `REQ-000002` was blocked at 2026-09-24T15:00:00Z and escalated by rule at 2026-09-26T15:00:00Z (`EVT-000027`), and milestone `MLS-000005` was missed.
 
 ### Step 8. Validate
 
 - **User action:** run acceptance scenarios with the customer and record the Validate gate.
 - **Record changed:** acceptance tasks; issues; a Validate gate assessment.
-- **Deterministic rule:** the gate check `no_open_sev1_sev2_issues` must be met before a pass is sensible. A `hold` sends the project back to Build as a new phase instance (the only backward move). Project C shows this loop in the data set: `PHS-000011` (validate) was followed by `PHS-000012` (build) and `PHS-000013` (validate), which passed (`GAT-000003`).
+- **Deterministic rule:** the gate check `no_open_sev1_sev2_issues` must be met before a pass is sensible. A `hold` sends the project back to Build as a new phase instance (the only backward move).
 - **Event emitted:** `gate.assessed`, `phase.exited`, `phase.entered`.
 - **Human decision:** the customer sponsor accepts the build; Person A records the outcome.
 - **Downstream consumer:** R3; R5 may use defect history as context for quality review, without changing it.
+
+> **Data-set comparison (Synthetic Project C):** validate phase `PHS-000011` was followed by a rework build phase `PHS-000012` and a second validate phase `PHS-000013`, which passed (`GAT-000003`).
 
 ### Step 9. Enable
 
@@ -114,19 +120,23 @@ Project A is here in the data set. Its pre-assessment readiness scorecard `RDS-0
 
 - **User action:** count, for each of the six categories, how many readiness criteria are met and whether the required evidence is present.
 - **Record changed:** a readiness scorecard (`RDS-`) with six entries (`RDE-`) and `assessment_purpose` `launch_review`.
-- **Deterministic rule:** `config/readiness-weights.yaml`: `achieved_rate` = met / total, `category_score` = weight x `achieved_rate`, `overall_score` = 100 x sum(weight x rate) / sum(weight), and `incomplete_required_evidence_flag` is true if any category lacks its required evidence. Project C's `RDS-000003` in the data set scores 91.25 with the flag true, because training sign-offs are not complete.
+- **Deterministic rule:** `config/readiness-weights.yaml`: `achieved_rate` = met / total, `category_score` = weight x `achieved_rate`, `overall_score` = 100 x sum(weight x rate) / sum(weight), and `incomplete_required_evidence_flag` is true if any category lacks its required evidence.
 - **Event emitted:** `readiness.scored`, with the readiness rule `RUL-000301` as the system actor.
 - **Human decision:** a person confirms which criteria are met. The score itself decides nothing.
 - **Downstream consumer:** R2 (reporting), R3 (Readiness tab mirrors the formula), R6 (may summarize gaps).
+
+> **Data-set comparison (Synthetic Project C):** scorecard `RDS-000003` scores 91.25 with the incomplete-evidence flag true, because training sign-offs are not complete.
 
 ### Step 11. Human Launch gate decision
 
 - **User action:** review the scorecard and the launch gate checks, then record the outcome.
 - **Record changed:** a gate assessment for `launch_gate`, with evidence references and, for `pass_with_conditions`, the records that track each condition.
-- **Deterministic rule:** the launch checks are `readiness_scored`, `required_evidence_complete`, `no_open_sev1_sev2_issues`, `no_open_critical_risks`, and `no_blocked_requests`. For Project C today, every check is met except `required_evidence_complete`.
+- **Deterministic rule:** the launch checks are `readiness_scored`, `required_evidence_complete`, `no_open_sev1_sev2_issues`, `no_open_critical_risks`, and `no_blocked_requests`.
 - **Event emitted:** `gate.assessed`.
-- **Human decision:** **the launch decision.** A named person in the approver role records pass, pass_with_conditions, or hold. In a startup that is usually Person A with the sponsor. No score, rule, or AI makes this decision. Project C's launch gate is deliberately left unrecorded in the data set (`PHS-000015` is `awaiting_gate`), so the data never fakes a launch result.
+- **Human decision:** **the launch decision.** A named person in the approver role records pass, pass_with_conditions, or hold. In a startup that is usually Person A with the sponsor. No score, rule, or AI makes this decision.
 - **Downstream consumer:** R2 (launch support planning), R3, R6.
+
+> **Data-set comparison (Synthetic Project C):** every launch check is met except `required_evidence_complete`, and the launch gate is deliberately unrecorded (`PHS-000015` is `awaiting_gate`), so the data never fakes a launch decision.
 
 ### Step 12. Launch
 
@@ -158,11 +168,13 @@ Project A is here in the data set. Its pre-assessment readiness scorecard `RDS-0
 ### Step 15. Handoff accepted
 
 - **User action:** the person in the support owner role reviews the handoff and accepts it.
-- **Record changed:** the handoff becomes `accepted`, with `accepted_at` and `acceptance_person_id`. In a startup that person may again be Person A; the record still exists. Project C's `HND-000002` in the data set shows a request handoff accepted by `PER-000005`.
+- **Record changed:** the handoff becomes `accepted`, with `accepted_at` and `acceptance_person_id`. In a startup that person may again be Person A; the record still exists.
 - **Deterministic rule:** the transition gate check `handoff_accepted`.
 - **Event emitted:** `handoff.completed`, then `gate.assessed` for `transition_gate`.
 - **Human decision:** a named person accepts. A handoff is never accepted by a rule or an agent.
 - **Downstream consumer:** R2 (ownership moves off the implementation team's workload), R3.
+
+> **Data-set comparison (Synthetic Project C):** handoff `HND-000002` shows a request handoff accepted by `PER-000005`.
 
 ### Step 16. Review
 
@@ -259,7 +271,7 @@ One implementation professional running several projects can work through this l
 
 ## Solo use
 
-One person holds every internal role. The startup profile keeps gates lightweight and waivable evidence optional, but every gate outcome and handoff acceptance is still recorded by name. The plain files and the validator are enough; R3 starter mode will offer the same fields in a workbook.
+One person holds every internal role. The startup profile keeps gates lightweight and waivable evidence optional, but every gate outcome and handoff acceptance is still recorded by name. The plain files and the validator are enough; the R3 workbook's Starter Mode offers the same fields in a spreadsheet.
 
 ## Early-scale use
 

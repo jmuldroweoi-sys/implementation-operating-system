@@ -1,6 +1,6 @@
 # Architecture
 
-R1 is an operating model for implementation work, written as files: a lifecycle, gates, record schemas, deterministic rules, configuration profiles, synthetic data, and a validator. It runs from plain files today, and the R3 workbook will implement it in a spreadsheet next. This page explains how the parts fit.
+R1 is an operating model for implementation work, written as files: a lifecycle, gates, record schemas, deterministic rules, configuration profiles, synthetic data, and a validator. It runs from plain files today, and the R3 workbook implements the same model in a spreadsheet. This page explains how the parts fit.
 
 ## Three layers
 

@@ -504,8 +504,16 @@ class CoreValidatorTest(unittest.TestCase):
             text.replace("proposed design value, not a measured result", "configured value"), encoding="utf-8")
         self.assertFails("V40")
 
+    def test_vendor_matcher_is_whole_word_and_case_sensitive(self) -> None:
+        # The list is stored as hashes, so these assertions pin its matching behavior.
+        self.assertTrue(validate.names_listed_vendor("We track work in " + "Hub" + "Spot today."))
+        self.assertTrue(validate.names_listed_vendor("Boards like " + "Monday" + ".com are out of scope."))
+        self.assertFalse(validate.names_listed_vendor("the no" + "tion of a sl" + "ack schedule"))  # common words, lowercase
+        self.assertFalse(validate.names_listed_vendor("Salesforcelike tooling"))
+
     def test_rejects_vendor_name(self) -> None:
-        vendor = validate.GENERICITY_TERMS[0]
+        vendor = "Sales" + "force"  # assembled so this file never spells out a vendor name
+        self.assertTrue(validate.names_listed_vendor(vendor))
         self.box.replace("docs/scaling-model.md", "One person, or a few people", f"One person using {vendor}, or a few people")
         self.assertFails("V41")
 

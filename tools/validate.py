@@ -63,6 +63,7 @@ Exit codes: 0 pass, 1 one or more failures.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -714,13 +715,47 @@ WORKFLOW_SECTIONS = (
     "trigger", "inputs", "steps", "deterministic rules", "outputs", "events", "human decisions",
     "downstream integrations", "verification", "solo", "early-scale", "structured-growth", "mature",
 )
-# Well-known vendor and product names that must not appear in the core. The private
-# blocklist (V18) and the private workspace publication gate cover private and
+# The private blocklist (V18) and the private workspace publication gate cover private and
 # premise terms; they are never listed in this public file.
-GENERICITY_TERMS = (
-    "Salesforce", "HubSpot", "Zendesk", "ServiceNow", "Jira", "Asana", "Smartsheet", "Monday.com", "Workday",
-    "Oracle", "SAP", "Microsoft", "Excel", "Google", "Slack", "Notion",
-)
+# Vendor and product names that must not appear, stored as SHA-256 hashes of the exact
+# name so this public file never spells out the products it guards against. Names of
+# one to three words are matched case-sensitively as whole words.
+GENERICITY_TERM_HASHES = frozenset({
+    "12e5f2025ea19bfe8f8eb2f2219e69af38260f1951f516a35e7390cd81e3f1d9",
+    "33a7935db79df2a3bf5ac7ff9f2421015ff61623e005da1cf0cc9e1352c98069",
+    "48d53635551c8fd4564251d49f4e6eba58c2774469144e4346310955fbadbf4c",
+    "5a06b98b21528d307de51a5b5ab38d9650147fa5c022187dac64956cb5e74d9e",
+    "5f5f6ddd5dbf171077a052fe33f2d349f2b3ee91a732c461fb380d801a482d3e",
+    "73bcfe98830b53a1cabd2fa68c6ba8819adcfb9b0566f7ed5d455582d47973ed",
+    "8b9b0b3f792de8a6ad54ee531bd8f2efba7a64189029519237d882b3724dbcfd",
+    "a11413b0a4a315c2819e264b40f0ed5161a7b1cd1a2c1726661b7a25575fec6b",
+    "b27fb38ba323745c91fe7fd9021605430d43bdb7d3be765266e29364d103e26f",
+    "bbc323fb4c8234bba43e21ad21d450c9f059826ac4cbccabe423adaac7cab666",
+    "c7bac46904be785cd0c965bf5659610044f0cdb4cbb02d2ec398dc56648988fd",
+    "ca96ecb62e7bfb333671f467cd2b0f8dccbc211153e41f6aa7c47ac391c62d6e",
+    "ce770667e5f9b0d8f55367bb79419689d90c48451bb33f079f3a9a72ae132de8",
+    "dc7620ebfc35d54ef34e32b9eb6f69f1bfe93f294370c2798d91147e34e7ad56",
+    "e35c40edf9819dd4f14de7dd4c038d3529312744942e49b7ac63ee165705057c",
+    "ff8fdf4e47f0b0957ee901813bc6e5f24d862b6ac4c43d401b3f0f196e40a2b4",
+})
+
+
+def _sha256(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+VENDOR_TOKEN = re.compile(r"[A-Za-z0-9]+(?:\.[A-Za-z0-9]+)*")
+
+
+def names_listed_vendor(text: str) -> bool:
+    """True when any run of one to three words in text, compared case-sensitively, hashes
+    to a listed vendor or product name."""
+    words = VENDOR_TOKEN.findall(text)
+    for n in (1, 2, 3):
+        for i in range(len(words) - n + 1):
+            if _sha256(" ".join(words[i:i + n])) in GENERICITY_TERM_HASHES:
+                return True
+    return False
 
 
 def _load_yaml(path: Path):
@@ -1535,7 +1570,6 @@ def core_checks(root: Path, res: Result, catalog_by_type: dict, entity_prefix: d
     # V41
     def v41():
         problems = []
-        terms = [re.compile(r"(?<![A-Za-z0-9])" + re.escape(t) + r"(?![A-Za-z0-9])") for t in GENERICITY_TERMS]
         for path in repo_files(root):
             r = rel(root, path)
             if r in SCAN_EXEMPT or r.startswith(("tests/", ".github/")):
@@ -1543,9 +1577,9 @@ def core_checks(root: Path, res: Result, catalog_by_type: dict, entity_prefix: d
             text = text_of(path)
             if text is None:
                 continue
-            if any(p.search(text) for p in terms):
+            if names_listed_vendor(text):
                 problems.append(f"{r}: names a real vendor or product")
-        return problems, f"no listed vendor or product name ({len(GENERICITY_TERMS)} checked)"
+        return problems, f"no listed vendor or product name ({len(GENERICITY_TERM_HASHES)} checked)"
     _guard(res, "V41 core is generic and vendor-neutral", "", v41)
 
 

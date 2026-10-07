@@ -22,6 +22,13 @@ Shared standard 1.0.0. R1 core record schemas 0.1.0.
 - `tools/validate.py` checks V25 to V41 for the core, and new tests for every deterministic rule.
 - Repository foundation: README, license, contributing guide, CI workflow, and verification records.
 
+### Changed (publication-readiness review)
+
+- README: the companion R3 workbook and the R1/R3 relationship appear on the first screen; lifecycle and R1/R3 diagrams (Mermaid); a "Where to find things" map; an author line; the AI assistance section ties human review to each release.
+- `docs/practical-workflow.md`: steps 6 to 17 stay with Synthetic Project A; the data-set evidence from Synthetic Projects B and C moved into separate, labeled comparison notes. No synthetic record changed.
+- Documentation no longer describes R3 as future work (`docs/architecture.md`, `docs/portfolio-integration.md`, `docs/scaling-model.md`).
+- `tools/validate.py` V41 stores its vendor and product list as SHA-256 hashes and matches whole words case-sensitively, so the public file never spells out the names it guards against; tests cover the matcher.
+
 ### Not yet included
 
 - Later-version R1 features (per-phase files, decision, configuration-item, environment, promotion, and improvement-item schemas, templates, and the large-scale go-live pack). No release or tag exists yet.

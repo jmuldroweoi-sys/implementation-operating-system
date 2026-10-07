@@ -22,7 +22,7 @@ One person, or a few people, run implementations alongside other customer work.
 - **Fewer required fields.** Only each schema's minimum is required. Planned hours, for example, are optional until a complexity profile asks for them.
 - **One person may hold all internal roles.** The implementer is implementation lead, technical specialist, enablement lead, and support owner. Records still name the role that owns each task, so work can be handed over later.
 - **Lighter gates.** The `org-stage-startup` profile records every gate at lightweight formality and marks waivable evidence optional (for example the kickoff record and the test plan). Evidence that is not waivable, such as the design approval and acceptance sign-off, stays required. The outcome is still recorded by a named person.
-- **Plain files now, R3 starter mode later.** A startup can run R1 from the CSV files and this validator. The R3 workbook will offer a starter mode on the same fields.
+- **Plain files or the R3 workbook.** A startup can run R1 from the CSV files and this validator, or use the R3 workbook, whose Starter Mode works on the same fields.
 - **Rules.** Request timers are optional; the startup example profile relaxes the triage timer. Issue response rules for sev1 stay required at every stage.
 
 ## Early scale

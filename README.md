@@ -4,9 +4,21 @@ A vendor-neutral operating system for running software implementation projects: 
 
 > **Status: version 0.1.0, pre-release, not tagged.** The core is built and validated against synthetic data. It has not been deployed on a real project, and nothing here reports a historical or measured result.
 
+**Companion repository:** [implementation-tracker-workbook](https://github.com/jmuldroweoi-sys/implementation-tracker-workbook) (R3) runs this model day to day as a macro-free spreadsheet. R1 answers *what operating model implementation work should follow*; R3 answers *how one person can run that model today in a workbook*. R3 copies R1's contracts at a pinned commit and recalculates every R1 rule with formulas that a test suite checks against this repository's rule code.
+
+```mermaid
+flowchart LR
+    I[Initiate] --> D1[Discover] --> D2[Design] --> B[Build] --> V[Validate] --> E[Enable] --> L[Launch] --> S[Stabilize] --> T[Transition] --> R[Review]
+    V -. hold: rework .-> B
+```
+
+Each arrow is a gate that a named person records as `pass`, `pass_with_conditions`, or `hold`. Rules calculate, time, and flag; they never decide a gate.
+
 ## Purpose
 
 Give implementation work one reliable operating record: which phase each project is in, what must be true to move on, what is late or blocked, which risks and issues matter, how ready a project is to launch, and who decided what. R1 defines that record and the rules around it so that every project is run the same way and every number can be recomputed.
+
+Designed and maintained by Jared Muldrow, an implementation and onboarding professional who runs delivery work hands-on and designs the systems, controls, and tooling around it. That experience informed the design as inspiration only: no employer document, data, or wording is used here.
 
 ## Who this is for
 
@@ -41,6 +53,17 @@ data/synthetic/  three synthetic projects and their events
 
 Core, configuration, and optional scenario packs (none installed in 0.1) are separate layers. A named human records every gate outcome, handoff acceptance, and approval; rules only calculate, time, flag, and notify; AI has no authority over any record. See [docs/architecture.md](docs/architecture.md) and [docs/authority-boundaries.md](docs/authority-boundaries.md).
 
+### Where to find things
+
+| You want to | Open |
+|---|---|
+| Run one project through the model, step by step | [docs/practical-workflow.md](docs/practical-workflow.md) |
+| See how the parts fit and who may change what | [docs/architecture.md](docs/architecture.md), [docs/authority-boundaries.md](docs/authority-boundaries.md) |
+| Check the rules against worked examples | [verification/deterministic-rules.md](verification/deterministic-rules.md) |
+| Check that every synthetic reference resolves | [verification/referential-integrity.md](verification/referential-integrity.md), [verification/synthetic-data-check.md](verification/synthetic-data-check.md) |
+| See what was verified for this version | [verification/R1-V0.1-CHECKLIST.md](verification/R1-V0.1-CHECKLIST.md), [verification/STANDARD-1.0.0-CHECKLIST.md](verification/STANDARD-1.0.0-CHECKLIST.md), [verification/release-gate.md](verification/release-gate.md) |
+| Propose a change | [CONTRIBUTING.md](CONTRIBUTING.md), [CHANGELOG.md](CHANGELOG.md) |
+
 ## Ten-phase lifecycle
 
 1. Initiate
@@ -71,7 +94,7 @@ All rules are implemented once in [`tools/r1_rules.py`](tools/r1_rules.py). The 
 
 ## Data model
 
-Ten JSON Schemas in [`schemas/`](schemas/): project (`PRJ`), phase instance (`PHS`), milestone (`MLS`), task (`TSK`), gate assessment (`GAT`), request (`REQ`), handoff (`HND`), risk (`RSK`), issue (`ISS`), and readiness scorecard (`RDS`, with entries `RDE`). IDs, field names, phase keys, statuses, severities, and the event contract come from [`standard/`](standard/README.md). Each schema that has a CSV export lists its exact columns (`x-csv-columns`), which the R3 workbook will reuse unchanged.
+Ten JSON Schemas in [`schemas/`](schemas/): project (`PRJ`), phase instance (`PHS`), milestone (`MLS`), task (`TSK`), gate assessment (`GAT`), request (`REQ`), handoff (`HND`), risk (`RSK`), issue (`ISS`), and readiness scorecard (`RDS`, with entries `RDE`). IDs, field names, phase keys, statuses, severities, and the event contract come from [`standard/`](standard/README.md). Each schema that has a CSV export lists its exact columns (`x-csv-columns`), which the R3 workbook reuses unchanged.
 
 R1 owns the implementation project, not the customer master. A project carries `customer_reference` (a free-form pointer to the customer record in your own system, never an R1 ID) and `customer_label` (a display label). R1 holds no customer legal, account, billing, contract, HR, or personal data.
 
@@ -101,11 +124,19 @@ The same model serves startup, early-scale, structured-growth, and mature organi
 
 ## Cross-repo integration
 
-R1 is the authority that five companion repositories build on: R2 reads task hours, phases, request workload, and launch signals for capacity planning; R3 implements R1 as a workbook; R4 supplies training evidence; R5 uses R1 records as context only; R6 drafts recommendations that change nothing until a named human approves them. See [docs/portfolio-integration.md](docs/portfolio-integration.md).
+R1 is designed as the authority that five companion repositories build on. One exists today:
+
+```mermaid
+flowchart LR
+    R1[R1 operating system<br/>lifecycle, schemas, rules, events] -- pinned contracts and synthetic data --> R3[R3 tracker workbook<br/>formulas, event log, exports]
+    R3 -- capacity inputs, planned --> R2[R2 capacity and org design]
+```
+
+R3 implements R1 as a workbook. Planned next: R2 reads task hours, phases, request workload, and launch signals for capacity planning; R4 supplies training evidence; R5 uses R1 records as context only; R6 drafts recommendations that change nothing until a named human approves them. See [docs/portfolio-integration.md](docs/portfolio-integration.md).
 
 ## What is not included yet
 
-Planned for later versions, and deliberately absent from 0.1: one file per phase, schemas for decisions, configuration items, environments, promotion records, and improvement items, environment promotion and builder permissions, an integration workstream guide, a detailed continuous-improvement workflow, templates, and the optional large-scale go-live pack (rehearsal plan, cutover runbook, command center, super-user roster, hypercare exit rules). The companion repositories are not built yet.
+Planned for later versions, and deliberately absent from 0.1: one file per phase, schemas for decisions, configuration items, environments, promotion records, and improvement items, environment promotion and builder permissions, an integration workstream guide, a detailed continuous-improvement workflow, templates, and the optional large-scale go-live pack (rehearsal plan, cutover runbook, command center, super-user roster, hypercare exit rules). Of the five companion repositories, only R3 is built so far.
 
 ## Limitations
 
@@ -125,7 +156,7 @@ Planned for later versions, and deliberately absent from 0.1: one file per phase
 
 ## AI assistance
 
-AI assisted with drafting and structuring this repository: Claude (Anthropic) helped draft text, schemas, configuration, synthetic data, rules, and tests under the author's direction. The author defined the architecture and the rules, and a human reviewed and approved all content before it was committed. Every rule and number was also checked by the automated validator and test suite. AI produced no data about real people or organizations, and no AI is used by any rule in this repository.
+AI assisted with drafting and structuring this repository: Claude (Anthropic) helped draft text, schemas, configuration, synthetic data, rules, and tests under the author's direction. The author defined the architecture and the rules. Every release is reviewed and approved by the author before it is published, and that review is recorded in [`verification/release-gate.md`](verification/release-gate.md). Every rule and number is also checked by the automated validator and test suite on every commit. AI produced no data about real people or organizations, and no AI is used by any rule in this repository.
 
 ## Versioning
 
