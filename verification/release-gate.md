@@ -12,8 +12,8 @@
 | Practical workflow guide | `docs/practical-workflow.md`, present with every required section |
 | Private build verification (2026-10-06) | PASS: validator 41 of 41 checks, 108 tests, zero orphan references, 38 events valid against standard 1.0.0 |
 | Publication gate, pre-release profile (2026-10-06) | PASS with 0 failures. Every public-safety rule passes, including the private blocklist (a temporary private term list at the time), excluded names, em dashes, secrets, emails, claims, assistant names, unfinished markers, labels, required files, README sections, practical workflow sections, and commit identity. Two expected warnings remain: no private source fingerprints are configured in this build environment, and the human review below is not signed yet |
-| Publication gate, strict profile (2026-10-07) | Run with the private blocklist (193 terms) and private source fingerprints (6,856 shingles), both kept outside every repository: 0 blocklist hits, 0 fingerprint matches, every public-safety rule passing. The only failure is the unsigned human review below, which is the author's decision, not a technical failure |
-| Human release review | Pending: the author (see Human review below) |
+| Publication gate, strict profile (2026-10-07) | Run with the private blocklist (193 terms) and private source fingerprints (6,856 shingles), both kept outside every repository: 0 blocklist hits, 0 fingerprint matches, every public-safety rule passing. The only open item at that run was the human review, signed below on the same day |
+| Human release review | Signed PASS by Jared Muldrow, 2026-10-07 (see Human review below) |
 | Publication approval | None |
 
 ## Public-safety checklist
@@ -42,4 +42,10 @@ No release, tag, or visibility change happens before all three.
 
 ## Human review
 
-Not signed yet. The author signs after reviewing the repository by adding three lines to this section, each on its own line: `Reviewer:` with the reviewer's name, `Date:` with the review date, and `Verdict:` with PASS or FAIL. Publication still needs the author's separate explicit approval after that.
+Signed by the author in writing on 2026-10-07 ("Signed: R1 and R3 release review PASS, October 7, 2026"), covering this repository and its companion as one pair, and recorded here at the author's instruction.
+
+- Reviewer: Jared Muldrow
+- Date: 2026-10-07
+- Verdict: PASS
+
+The signed review is not publication approval. Making the repository public and creating its release tag each need the author's separate explicit approval.
