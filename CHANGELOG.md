@@ -2,7 +2,7 @@
 
 This file tracks two separate versions: the repository version (headings below) and the shared-standard version (stated in each entry). See `standard/version-policy.md`.
 
-## [0.1.0] Unreleased (pre-release, not tagged)
+## [0.1.0] 2026-10-07
 
 Shared standard 1.0.0. R1 core record schemas 0.1.0.
 
@@ -31,4 +31,4 @@ Shared standard 1.0.0. R1 core record schemas 0.1.0.
 
 ### Not yet included
 
-- Later-version R1 features (per-phase files, decision, configuration-item, environment, promotion, and improvement-item schemas, templates, and the large-scale go-live pack). No release or tag exists yet.
+- Later-version R1 features (per-phase files, decision, configuration-item, environment, promotion, and improvement-item schemas, templates, and the large-scale go-live pack).

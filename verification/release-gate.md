@@ -1,12 +1,12 @@
 # Release gate
 
-**This repository is not authorized for public release.** Explicit human publication approval is still required.
+**Released publicly on 2026-10-07 as version 0.1.0 (tag `v0.1.0`)**, after a signed human review and the author's explicit publication approval.
 
 | Item | Status |
 |---|---|
 | Repository | implementation-operating-system |
-| Visibility | Private |
-| Repository version | 0.1.0, pre-release, not tagged |
+| Visibility | Public (from 2026-10-07) |
+| Repository version | 0.1.0, released 2026-10-07, tag `v0.1.0` |
 | Shared standard | 1.0.0, validated (V01 to V24) |
 | R1 v0.1 operating core | Built and validated (V25 to V41) |
 | Practical workflow guide | `docs/practical-workflow.md`, present with every required section |
@@ -14,7 +14,7 @@
 | Publication gate, pre-release profile (2026-10-06) | PASS with 0 failures. Every public-safety rule passes, including the private blocklist (a temporary private term list at the time), excluded names, em dashes, secrets, emails, claims, assistant names, unfinished markers, labels, required files, README sections, practical workflow sections, and commit identity. Two expected warnings remain: no private source fingerprints are configured in this build environment, and the human review below is not signed yet |
 | Publication gate, strict profile (2026-10-07) | Run with the private blocklist (193 terms) and private source fingerprints (6,856 shingles), both kept outside every repository: 0 blocklist hits, 0 fingerprint matches, every public-safety rule passing. The only open item at that run was the human review, signed below on the same day |
 | Human release review | Signed PASS by Jared Muldrow, 2026-10-07 (see Human review below) |
-| Publication approval | None |
+| Publication approval | Given by Jared Muldrow in writing, 2026-10-07 |
 
 ## Public-safety checklist
 

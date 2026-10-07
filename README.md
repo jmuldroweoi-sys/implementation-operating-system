@@ -2,7 +2,7 @@
 
 A vendor-neutral operating system for running software implementation projects: one ten-phase lifecycle, human-recorded gates, deterministic rules, shared data contracts, and a validator. One implementation professional can run it directly from plain files, and a larger team can scale it without changing the model.
 
-> **Status: version 0.1.0, pre-release, not tagged.** The core is built and validated against synthetic data. It has not been deployed on a real project, and nothing here reports a historical or measured result.
+> **Status: version 0.1.0, released 2026-10-07 (tag `v0.1.0`).** The core is built and validated against synthetic data. It has not been deployed on a real project, and nothing here reports a historical or measured result.
 
 **Companion repository:** [implementation-tracker-workbook](https://github.com/jmuldroweoi-sys/implementation-tracker-workbook) (R3) runs this model day to day as a macro-free spreadsheet. R1 answers *what operating model implementation work should follow*; R3 answers *how one person can run that model today in a workbook*. R3 copies R1's contracts at a pinned commit and recalculates every R1 rule with formulas that a test suite checks against this repository's rule code.
 
@@ -165,7 +165,7 @@ AI assisted with drafting and structuring this repository: Claude (Anthropic) he
 | Shared standard | 1.0.0 (`standard/version-policy.md`) |
 | R1 core record schemas | 0.1.0 (`schema_version` on every record) |
 | Readiness calculation | 1.0.0 (`calculation_version` in `config/readiness-weights.yaml`) |
-| Repository | 0.1.0, pre-release, not tagged (`CHANGELOG.md`) |
+| Repository | 0.1.0, released 2026-10-07, tag `v0.1.0` (`CHANGELOG.md`) |
 
 Validate with Python 3.12:
 
